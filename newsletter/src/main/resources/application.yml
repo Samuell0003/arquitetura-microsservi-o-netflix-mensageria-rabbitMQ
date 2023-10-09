@@ -1,6 +1,11 @@
 spring:
   application:
     name: newsletter-client
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://localhost:8888
+
   data:
     mongodb:
       port: 27017
@@ -11,6 +16,7 @@ spring:
     username: guest
     password: guest
     host: localhost
+
 
 
 server:
@@ -41,5 +47,10 @@ newsLetter:
     exchange: newsLetter.exchange
     rountingkey: newsLetter.news.routingkey
     queue: newsLetter.queue
+
+api:
+  security:
+    token:
+      secret: ${JWT.SECRET:my-secret-key}
 
 

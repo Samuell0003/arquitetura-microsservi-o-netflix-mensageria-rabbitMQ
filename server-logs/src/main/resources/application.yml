@@ -11,6 +11,10 @@ spring:
     port: 5672
     username: guest
     password: guest
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://localhost:8888
 
 
 server:
