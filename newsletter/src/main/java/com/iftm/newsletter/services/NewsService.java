@@ -2,8 +2,10 @@ package com.iftm.newsletter.services;
 
 import com.iftm.newsletter.mensages.RabbitMqSendLog;
 import com.iftm.newsletter.models.News;
+import com.iftm.newsletter.models.NotificationMessage;
 import com.iftm.newsletter.models.dto.LogDTO;
 import com.iftm.newsletter.models.dto.NewsDTO;
+import com.iftm.newsletter.models.dto.SaveNewsDTO;
 import com.iftm.newsletter.repositories.NewsRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,8 @@ public class NewsService {
     private NewsRepository repository;
     @Autowired
     private RabbitMqSendLog rabbitMqSendLog;
+    @Autowired
+    private FirebaseMessaginsService firebaseMessaginsService;
 
     public NewsService(NewsRepository repository) {
         this.repository = repository;
@@ -42,10 +46,13 @@ public class NewsService {
         return ResponseEntity.ok(new NewsDTO(repository.findById(new ObjectId(id)).get()));
     }
 
-    public ResponseEntity<NewsDTO> save(News news) {
-        var newsDb = new NewsDTO(repository.save(news));
+    public ResponseEntity<NewsDTO> save(SaveNewsDTO news) {
+        var newsDb = new NewsDTO(repository.save(news.news()));
         rabbitMqSendLog.sendLog(new LogDTO<NewsDTO>("save", newsDb));
-
+        if (news.recipientToken() != null)
+            firebaseMessaginsService.sendNotification(
+                    new NotificationMessage(news.recipientToken(), "Noticia salva", news.news().getTitle(), news.image())
+            );
         return ResponseEntity.ok(newsDb);
     }
 
@@ -66,7 +73,7 @@ public class NewsService {
         return ResponseEntity.ok(new NewsDTO(repository.save(newsDb.get())));
     }
 
-    public ResponseEntity<?> delete(String id) {
+    public ResponseEntity<?> delete(String id, String recipientToken) {
         var newsDb = repository.findById(new ObjectId(id));
 
         if (!newsDb.isPresent())
@@ -74,6 +81,10 @@ public class NewsService {
 
         repository.deleteById(new ObjectId(id));
         rabbitMqSendLog.sendLog(new LogDTO<NewsDTO>("delete", new NewsDTO(newsDb.get())));
+        if (recipientToken != null)
+            firebaseMessaginsService.sendNotification(
+                    new NotificationMessage(recipientToken, "Noticia deletada", newsDb.get().getTitle(), "")
+            );
         return ResponseEntity.ok("success");
     }
 

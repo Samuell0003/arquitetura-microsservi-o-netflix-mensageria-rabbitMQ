@@ -3,6 +3,7 @@ package com.iftm.newsletter.models.user;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,14 +16,55 @@ import java.util.Objects;
 public class User implements UserDetails {
     @Id
     private ObjectId id;
-    private String login;
+    private String avatar;
+    private String email;
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    @Field("first_name")
+    private String firstName;
+    @Field("last_name")
+    private String lastName;
     private String password;
     private UserRole role;
 
-    public User(String login, String password, UserRole role) {
-        this.login = login;
+    public String getEmail() {
+        return email;
+    }
+
+    public User(String avatar,String email, String firstName, String lastName, String password, UserRole role) {
+        this.avatar = avatar;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.password = password;
         this.role = role;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public User() { }
@@ -33,14 +75,6 @@ public class User implements UserDetails {
 
     public void setId(ObjectId id) {
         this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
     }
 
     @Override
@@ -57,7 +91,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return login;
+        return email;
     }
 
     @Override
@@ -100,7 +134,7 @@ public class User implements UserDetails {
         User user = (User) o;
 
         if (!Objects.equals(id, user.id)) return false;
-        if (!Objects.equals(login, user.login)) return false;
+        if (!Objects.equals(email, user.email)) return false;
         if (!Objects.equals(password, user.password)) return false;
         return Objects.equals(role, user.role);
     }
@@ -108,7 +142,7 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (login != null ? login.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (role != null ? role.hashCode() : 0);
         return result;

@@ -2,6 +2,7 @@ package com.iftm.newsletter.controllers;
 
 import com.iftm.newsletter.models.News;
 import com.iftm.newsletter.models.dto.NewsDTO;
+import com.iftm.newsletter.models.dto.SaveNewsDTO;
 import com.iftm.newsletter.services.NewsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/news")
+//@CrossOrigin
 public class NewsController {
 
     private NewsService service;
@@ -28,7 +30,7 @@ public class NewsController {
     }
 
     @PostMapping
-    public ResponseEntity<NewsDTO> save(@RequestBody News news) {
+    public ResponseEntity<NewsDTO> save(@RequestBody SaveNewsDTO news) {
         return service.save(news);
     }
 
@@ -38,7 +40,7 @@ public class NewsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") String id) {
-        return service.delete(id);
+    public ResponseEntity<?> delete(@PathVariable("id") String id, @RequestBody String recipientToken) {
+        return service.delete(id, recipientToken);
     }
 }

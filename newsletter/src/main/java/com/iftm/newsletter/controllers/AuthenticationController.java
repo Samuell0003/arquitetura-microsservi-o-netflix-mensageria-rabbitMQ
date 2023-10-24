@@ -1,9 +1,6 @@
 package com.iftm.newsletter.controllers;
 
-import com.iftm.newsletter.models.user.AuthenticantionDTO;
-import com.iftm.newsletter.models.user.LoginReponseDTO;
-import com.iftm.newsletter.models.user.User;
-import com.iftm.newsletter.models.user.UserDTO;
+import com.iftm.newsletter.models.user.*;
 import com.iftm.newsletter.services.TokenService;
 import com.iftm.newsletter.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin
 public class AuthenticationController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -26,16 +24,20 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginReponseDTO> login(@RequestBody @Validated AuthenticantionDTO data) throws Exception {
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login().toUpperCase(), data.password());
+        var usernamePassword = new UsernamePasswordAuthenticationToken(data.email().toLowerCase(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((User) auth.getPrincipal());
-        return ResponseEntity.ok(new LoginReponseDTO(token));
+        return ResponseEntity.ok(new LoginReponseDTO(token, userService.findByEmail(data.email())));
     }
 
 
     @PostMapping("/register")
-    public ResponseEntity<User> save(@RequestBody @Validated UserDTO user) {
+    public ResponseEntity<UserDTO> save(@RequestBody @Validated LoginUserDTO user) {
         return userService.save(user);
+    }
+    @PutMapping("update")
+    public ResponseEntity<UserDTO> update(@RequestBody @Validated UserDTO user) {
+        return userService.update(user);
     }
 }

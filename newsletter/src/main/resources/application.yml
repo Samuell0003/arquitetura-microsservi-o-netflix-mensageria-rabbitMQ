@@ -32,6 +32,8 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+firebase:
+  credential-file-name: firebase-account.json
 
 logging:
   level:
@@ -52,5 +54,4 @@ api:
   security:
     token:
       secret: ${JWT.SECRET:my-secret-key}
-
 
